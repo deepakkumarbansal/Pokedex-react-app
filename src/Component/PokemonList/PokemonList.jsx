@@ -3,9 +3,9 @@ import Pokemon from '../Pokemon/Pokemon';
 import usePokemonList from '../../hooks/usePokemonList';
 const PokemonList = () => {
 
-   // using custom hooks so that UI component will not have all logic and in future unit testing will be easy
- const {pokemonListState, setPokemonListState} = usePokemonList();
-//OR-->  const [pokemonListState, setPokemonListState] = usePokemonList();
+   // using custom hooks so that UI component will not have all logic and in future unit testing will be easy. Also you can also use it anywhere also
+ const {pokemonListState, setPokemonListState} = usePokemonList('https://pokeapi.co/api/v2/pokemon/', false); // if type argument ==> 'true' ==> we are query for perticular type. Else 'false' ==> all pokemon list
+ //OR-->  const [pokemonListState, setPokemonListState] = usePokemonList();
 
   return (
     <div className='pokemon-list-wrapper'>

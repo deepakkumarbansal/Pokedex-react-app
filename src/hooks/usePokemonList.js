@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 
-const usePokemonList = () => {
+const usePokemonList = (url, type) => {
+
     const [pokemonListState, setPokemonListState] = useState({
-        pokedexUrl: 'https://pokeapi.co/api/v2/pokemon/',
+        pokedexUrl: url,
         pokemonList: [],
         isLoading: true,
         prevUrl: '',
@@ -21,26 +22,36 @@ const usePokemonList = () => {
 
         setPokemonListState((state) => ({ ...state, nextUrl: response.data.next, prevUrl: response.data.previous })); // pass as a callback
 
-        // iterating over the array of pokemons, and using thier url, to create an array of promises
-        // that will download those 20 pokemons.
-        const pokemonResultPromise = pokemonResults.map((pokemon) => axios.get(pokemon.url));
-        // passing that promise array to axios.all
-        const pokemonData = await axios.all(pokemonResultPromise); // array of 20 pokemon detailed data
+        if (type) {
+            setPokemonListState((state)=>({
+                ...state,
+                // array of pokemon name with their url of perticular type
+                pokemonList: response.data.pokemon.slice(0,5),
+            }))
 
-        // now iterating on the data of 20 pokemon, and extract id, name, image, types
-        const result = pokemonData.map((pokedata) => {
-            const pokemon = pokedata.data;
-            // parsing details of perticular pokemon
-            return {
-                id: pokemon.id,
-                name: pokemon.name,
-                image: (pokemon.sprites.other) ? pokemon.sprites.other.dream_world.front_default : pokemon.sprites.front_shiny, // because it is possible that other is present
-                types: pokemon.types,
-            }
-        })
+        } else {
 
-        setPokemonListState((state) => ({ ...state, pokemonList: result, isLoading: false })); // pass as a callback
+            // iterating over the array of pokemons, and using thier url, to create an array of promises
+            // that will download those 20 pokemons.
+            const pokemonResultPromise = pokemonResults.map((pokemon) => axios.get(pokemon.url));
+            // passing that promise array to axios.all
+            const pokemonData = await axios.all(pokemonResultPromise); // array of 20 pokemon detailed data
 
+            // now iterating on the data of 20 pokemon, and extract id, name, image, types
+            const result = pokemonData.map((pokedata) => {
+                const pokemon = pokedata.data;
+                // parsing details of perticular pokemon
+                return {
+                    id: pokemon.id,
+                    name: pokemon.name,
+                    image: (pokemon.sprites.other) ? pokemon.sprites.other.dream_world.front_default : pokemon.sprites.front_shiny, // because it is possible that other is present
+                    types: pokemon.types,
+                }
+            })
+
+            setPokemonListState((state) => ({ ...state, pokemonList: result, isLoading: false })); // pass as a callback
+
+        }
     }
     useEffect(() => {
         downloadPokemons();
